@@ -12,10 +12,101 @@ class Passport:
         'cid'
     ]
 
+    @property
+    def byr(self):
+        return self.__byr
+    @byr.setter
+    def byr(self, byr):
+        self.__byr = byr
+        if len(byr) != 4 or int(byr) < 1920 or int(byr) > 2002:
+            self._strictValid = False
+
+    @property
+    def iyr(self):
+        return self.__iyr
+    @iyr.setter
+    def iyr(self, iyr):
+        self.__iyr = iyr
+        if len(iyr) != 4 or int(iyr) < 2010 or int(iyr) > 2020:
+            self._strictValid = False
+
+    @property
+    def eyr(self):
+        return self.__eyr
+    @ eyr.setter
+    def eyr(self, eyr):
+        self.__eyr = eyr
+        if len(eyr) != 4 or int(eyr) < 2020 or int(eyr) > 2030:
+            self._strictValid = False
+
+    @property
+    def hgt(self):
+        return self.__hgt
+    @hgt.setter
+    def hgt(self, hgt):
+        self.__hgt = hgt
+        try:
+            height = int(hgt[:-2])
+            unit = hgt[-2:]
+            if unit == 'cm':
+                if height < 150 or height > 193:
+                    self._strictValid = False
+            elif unit == 'in':
+                if height < 59 or height > 76:
+                    self._strictValid = False
+            else:
+                self._strictValid = False
+        except ValueError:
+            self._strictValid = False
+
+    @property
+    def hcl(self):
+        return self.__hcl
+    @hcl.setter
+    def hcl(self, hcl):
+        self.__hcl = hcl
+        valid = True
+        try:
+            int(hcl[1:], 16)
+            if hcl[0] != '#' or len(hcl) != 7:
+                self._strictValid = False
+        except ValueError:
+            self._strictValid = False
+        
+    @property
+    def ecl(self):
+        return self.__ecl
+    @ecl.setter
+    def ecl(self, ecl):
+        self.__ecl = ecl
+        if ecl not in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']:
+            self._strictValid = False
+    
+    @property
+    def pid(self):
+        return self.__pid
+    @pid.setter
+    def pid(self, pid):
+        self.__pid = pid
+        try:
+            int(pid)
+            if len(pid) != 9:
+                self._strictValid = False
+        except ValueError:
+            self._strictValid = False
+    
+    @property
+    def cid(self):
+        return self.__cid
+    @cid.setter
+    def cid(self, cid):
+        self.__cid = cid
+
     def __init__(self, data):
+        self._strictValid = True
         data = data.split()
         for item in self._fields:
-            setattr(self, item, None)
+            setattr(self, "_Passport__" + item, None)
         for item in data:
             splititem = item.split(':')
             if splititem[0] in self._fields:
@@ -28,44 +119,10 @@ class Passport:
         return True
     
     def isValidStrict(self):
-        # Note: all these checks return False. If nothing returns, we follow through to the final return, which is True
-        # Birth Year validation
-        if self.byr is None or len(self.byr) != 4 or int(self.byr) < 1920 or int(self.byr) > 2002:
-            return False
-        # Issue Year validation
-        if self.iyr is None or len(self.iyr) != 4 or int(self.iyr) < 2010 or int(self.iyr) > 2020:
-            return False
-        # Expiration Year validation
-        if self.eyr is None or len(self.eyr) != 4 or int(self.eyr) < 2020 or int(self.eyr) > 2030:
-            return False
-        # Height validation
-        if self.hgt is None or self.hgt[-2:] not in ["cm", 'in']:
-            return False
-        height = int(self.hgt[:-2])
-        if self.hgt[-2:] == 'cm':
-            if height < 150 or height > 193:
-                return False
-        if self.hgt[-2:] == 'in':
-            if height < 59 or height > 76:
-                return False
-        # Hair Colour validation
-        if self.hcl is None or self.hcl[0] != '#' or len(self.hcl) != 7:
-            return False
-        try:
-            int(self.hcl[1:], 16)
-        except ValueError:
-            return False
-        # Eye Colour validation
-        if self.ecl is None or self.ecl not in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']:
-            return False
-        # Passport ID validation
-        if self.pid is None or len(self.pid) != 9:
-            return False
-        try:
-            int(self.pid)
-        except ValueError:
-            return False
-        return True
+        # This validation is far from perfect, as it allows invalid values to allow us to calculate part 1.
+        # This means that invalid values can be set and therefore invalid instances can be created, and there's no way
+        # to check if they return to being valid after being updated.
+        return self.isValid() and self._strictValid
     
     def __repr__(self):
         return f'\

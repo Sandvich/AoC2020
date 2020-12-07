@@ -9,27 +9,13 @@ class Bag():
         self.__colour = newcolour
     
     @property
-    def parent(self):
-        return self.__parent
-    @parent.setter
-    def parent(self, container):
-        if type(container) is not list:
-            self.__parent = [container]
-        else:
-            self.__parent = container
-    
-    @property
     def contents_colours(self):
         return [ i[-1] for i in self.contents ]
     def add_contents(self, bag):
         self.contents.append(bag)
     
-    def add_parent(self, parent):
-        self.parent += [ parent ]
-
     def __init__(self, colour):
         self.contents = []
-        self.parent = []
         self.colour = colour
 
 def load_file():
@@ -50,9 +36,6 @@ def process_input(data):
             if bag != "no other bags.":
                 rule = bag.split()
                 bags[line].add_contents([int(rule[0]), ' '.join(rule[1:3])])
-    for line in bags.keys():
-        for item in bags[line].contents_colours:
-            bags[item].add_parent(line)
     return bags
 
 def bag_can_contain(data, bag, search):

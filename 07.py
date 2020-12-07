@@ -1,23 +1,5 @@
 #!/usr/bin/env python3
 
-class Bag():
-    @property
-    def colour(self):
-        return self.__colour
-    @colour.setter
-    def colour(self, newcolour):
-        self.__colour = newcolour
-    
-    @property
-    def contents_colours(self):
-        return [ i[-1] for i in self.contents ]
-    def add_contents(self, bag):
-        self.contents.append(bag)
-    
-    def __init__(self, colour):
-        self.contents = []
-        self.colour = colour
-
 def load_file():
     data = {}
     with open('07.txt', 'r') as f:
@@ -31,24 +13,25 @@ def load_file():
 def process_input(data):
     bags = {}
     for line in data.keys():
-        bags[line] = Bag(line)
+        bags[line] = []
         for i, bag in enumerate(data[line]):
             if bag != "no other bags.":
                 rule = bag.split()
-                bags[line].add_contents([int(rule[0]), ' '.join(rule[1:3])])
+                bags[line].append([int(rule[0]), ' '.join(rule[1:3])])
     return bags
 
 def bag_can_contain(data, bag, search):
-    if len(data[bag].contents_colours) == 0:
+    colours = [ x[1] for x in data[bag] ]
+    if len(colours) == 0:
         return False
-    elif search in data[bag].contents_colours:
+    elif search in colours:
         return True
     else:
-        return any([bag_can_contain(data, x, search) for x in data[bag].contents_colours])
+        return any([bag_can_contain(data, x, search) for x in colours])
 
 def count_contents(data, bag):
     retval = 1
-    for item in data[bag].contents:
+    for item in data[bag]:
         retval += item[0] * count_contents(data, item[1])
     return retval
 

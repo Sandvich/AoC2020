@@ -45,6 +45,49 @@ def run_iteration_first(data):
             newdata[-1].append(calculate_occupancy(consider_rows, consider_cols, data, data[row][seat]))
     return newdata
 
+def check_direction(data, start, move):
+    retval = None
+    x, y = start[0], start[1]
+    while retval is None:
+        try:
+            x, y = x + move[0], y + move[1]
+            retval = data[x][y]
+        except IndexError:
+            return None
+    return retval
+
+def run_iteration_second(data):
+    newdata = []
+    cardinals = [
+        [1,1],
+        [1,0],
+        [1,-1],
+        [0,1],
+        [0,-1],
+        [-1,1],
+        [-1,0],
+        [-1,-1]
+    ]
+    for row in range(len(data)):
+        newdata.append([])
+        for seat in range(len(data[row])):
+            current = data[row][seat]
+            if current is None:
+                newdata[-1].append(None)
+            else:
+                count = 0
+                for direction in cardinals:
+                    to_add = check_direction(data, [row, seat], direction)
+                    if to_add is not None:
+                        count += to_add
+                if count == 0:
+                    newdata[-1].append(1)
+                elif count >= 5:
+                    newdata[-1].append(0)
+                else:
+                    newdata[-1].append(current)
+    return newdata
+
 def run_algorithm(to_run, data):
     iterations, stable = 0, False
     while not stable:
@@ -67,7 +110,7 @@ def run_algorithm(to_run, data):
 
 if __name__ == '__main__':
     data = load_file()
-    iterations, occupied = run_algorithm(run_iteration_first, deepcopy(data))
-    print(f'Stable after {iterations} iterations (first algorithm). {occupied} seats occupied.')
-    # iterations, occupied = run_algorithm(run_iteration_second, deepcopy(data))
-    # print(f'Stable after {iterations} iterations (second algorithm). {occupied} seats occupied.')
+    # iterations, occupied = run_algorithm(run_iteration_first, deepcopy(data))
+    # print(f'Stable after {iterations} iterations (first algorithm). {occupied} seats occupied.')
+    iterations, occupied = run_algorithm(run_iteration_second, deepcopy(data))
+    print(f'Stable after {iterations} iterations (second algorithm). {occupied} seats occupied.')
